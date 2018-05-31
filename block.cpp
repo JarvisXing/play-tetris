@@ -1,20 +1,18 @@
 #include"Block.h"
-
-class Box;
-
-Block::Block(TetrisWindow* window, PlayGround* m_iMatPlay,
+Block::Block(TetrisWindow* window, PlayGround* play,
 	Point m_pPoint, uint16_t m_pWidth, uint16_t m_pHeight, TypeColor m_pColor):
 	BaseEntity(m_pPoint, m_pWidth, m_pHeight, m_pColor),
-	m_iWindow(window)
+	m_iWindow(window), m_iPlay(play)
 {		
 	Mat tmp_block(GetHeight(), GetWidth(), CV_8UC3, SetColor(m_pColor));
 	m_iMatBlock = tmp_block;
 	if (m_iWindow != NULL)
 		m_iField = IN_WINDOW;
-	else if (m_iMatPlay != NULL)
+	else if (m_iPlay != NULL)
 		m_iField = IN_PLAYGROUND;
 	else
 		m_iField = IN_NONE;
+
 	InitBlock();
 
 }
@@ -562,7 +560,8 @@ Mat Block::DisplayEntity()
 	}
 	if (m_iField == IN_PLAYGROUND)
 	{
-		Mat m_pBackGround = m_iMatPlay->GetMatPlay();
+		
+		Mat m_pBackGround = m_iPlay->GetMatPlay();
 		Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
 		addWeighted(tmp_BackGround, 0, m_iMatBlock, 1, 0, tmp_BackGround);
 		return m_pBackGround;
@@ -580,7 +579,7 @@ Mat Block::HideEntity()
 	}
 	if (m_iField == IN_PLAYGROUND)
 	{
-		Mat m_pBackGround = m_iMatPlay->GetMatPlay();
+		Mat m_pBackGround = m_iPlay->GetMatPlay();
 		Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
 		addWeighted(tmp_BackGround, 0, m_iMatBlock, 0, 0, tmp_BackGround);
 		return m_pBackGround;

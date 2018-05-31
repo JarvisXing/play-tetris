@@ -33,9 +33,9 @@ private:
 	uint16_t m_iPlayW;
 	uint16_t m_iPlayH;
 
-	Box* m_iMatBox;
-	Block* m_iMatBlock;
-	PlayGround* m_iMatPlay;
+	Box* m_iBox;
+	Block* m_iBlock;
+	PlayGround* m_iPlay;
 public:
 	TetrisWindow();
 	virtual ~TetrisWindow();

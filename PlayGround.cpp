@@ -8,7 +8,7 @@ PlayGround::PlayGround(TetrisWindow* window,
 {
 	Mat tmp_play(GetHeight(), GetWidth(), CV_8UC3, SetColor(m_pColor));
 	m_iMatPlay = tmp_play;
-	m_iMatBoxArr.fill({ true ,true,true,true ,true,true, true ,true,true, true});
+	//TODO:draw back line
 	InitPlay();
 }
 PlayGround::~PlayGround()
@@ -17,37 +17,42 @@ PlayGround::~PlayGround()
 }
 void PlayGround::InitPlay()
 {
-	int tmp_row = 0;//row
-	
-	for (auto it = m_iMatBoxArr.begin();it!= m_iMatBoxArr.end();it++)
-	{		
-		int tmp_col = 0;//column
+	//m_iMatBoxArr.fill({ true ,true,true,true ,true,true, true ,true,true, true });
+	//int tmp_row = 0;//row
+	//
+	//for (auto it = m_iMatBoxArr.begin();it!= m_iMatBoxArr.end();it++)
+	//{		
+	//	int tmp_col = 0;//column
 
-		for (auto ik = it->begin(); ik != it->end(); ik++)
-		{	
+	//	for (auto ik = it->begin(); ik != it->end(); ik++)
+	//	{	
+	//		if (*ik == true)
+	//		{		
+	//			//cout << "-tmp_row-" << tmp_row << "-tmp_col-" << tmp_col << endl;
+	//			m_iBoxPointSet.insert({ tmp_row, tmp_col});
+	//			Point tmp;
+	//			tmp = Point((20 + 5) * tmp_col+ 5, (20 + 5) * tmp_row + 5);
+	//			Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
 
-			if (*ik == true)
-			{		
-				//cout << "-tmp_row-" << tmp_row << "-tmp_col-" << tmp_col << endl;
+	//			m_iBoxSet.insert(box);
+	//			SetMatPlay(box->DisplayEntity());
+	//		}
+	//		tmp_col++;
+	//	}
+	//	tmp_row++;
+	//}
 
-				m_iBoxPointSet.insert({ tmp_row, tmp_col});
-				Point tmp;
-				tmp = Point((20 + 5) * tmp_col+ 5, (20 + 5) * tmp_row + 5);
-				Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
 
-				m_iBoxSet.insert(box);
-				SetMatPlay(box->DisplayEntity());
-			}
-			tmp_col++;
-		}
-		tmp_row++;
-		
-	}
-	
+	Block* block = new Block(NULL, this, Point(5, 5), 105, 105, WHITE);
+	m_iBlock= block;
+	SetMatPlay(block->DisplayEntity());
+
 }
 void PlayGround::UpdateEntity(Point m_newPoint)
 {
 	SetPoint(m_newPoint);
+	m_iBlock->UpdateEntity(Point(40, 20));
+	SetMatPlay(m_iBlock->DisplayEntity());
 
 }
 Mat PlayGround::DisplayEntity()
@@ -64,16 +69,16 @@ Mat PlayGround::HideEntity()
 	addWeighted(tmp_BackGround, 0, m_iMatPlay, 0, 0, tmp_BackGround);
 	return m_pBackGround;
 }
-
-Mat PlayGround::GetMatPlay()
-{
-	return m_iMatPlay;
-}
 void PlayGround::SetMatPlay(Mat m_pNewMat)
 {
 	m_iMatPlay = m_pNewMat;
 
 }
+Mat PlayGround::GetMatPlay()
+{
+	return m_iMatPlay;
+}
+
 void PlayGround::DetectCollision(Block m_pBlock)
 {
 
@@ -100,13 +105,6 @@ void PlayGround::UpdatePlayGround(Block m_pBlock)
 		(*ik)->DisplayPlayRow(m_iPlayGround);
 		ik++;
 	}
-}
-
-Mat PlayGround::DisplayPalyGround(Mat m_pBackGround)
-{	
-	Mat tmp_BackGround = m_pBackGround(Rect(m_iPlayGroundPoint.x, m_iPlayGroundPoint.y, m_iWidth, m_iHeight));
-	addWeighted(tmp_BackGround, 0, m_iPlayGround, 1, 0, tmp_BackGround);
-	return m_pBackGround;
 }
 TypeDetect PlayGround::DetectCollision(Block m_pBlock)
 {

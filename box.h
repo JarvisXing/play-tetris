@@ -15,8 +15,8 @@ class Box:public BaseEntity
 {
 private:
 	TetrisWindow * m_iWindow;
-	Block* m_iMatBlock;
-	PlayGround* m_iMatPlay;
+	Block* m_iBlock;
+	PlayGround* m_iPlay;
 	Mat m_iMatBox;
 	uint8_t m_iField;
 public:
@@ -33,8 +33,8 @@ public:
 	Mat HideEntity();
 
 	TetrisWindow* const GetWindow() { return m_iWindow; }
-	Block* const GetBlock() { return m_iMatBlock; }
-	PlayGround* const GetPlay() { return m_iMatPlay; }
+	Block* const GetBlock() { return m_iBlock; }
+	PlayGround* const GetPlay() { return m_iPlay; }
 
 };
 #endif

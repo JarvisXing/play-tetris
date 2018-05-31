@@ -23,6 +23,7 @@ int main()
 	Window->InitWindow();
 	Window->UpdateWindow();
 	Window->ShowWindow();
+	cout << "after init" << endl;
 	int i = 0;
 	while (i < 10)
 	{	

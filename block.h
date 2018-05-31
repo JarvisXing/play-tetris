@@ -1,5 +1,5 @@
-#ifndef _BLOCK_H
-#define _BLOCK_H
+#ifndef BLOCK_H
+#define BLOCK_H
 #include "BaseEntity.h"
 #include "Box.h"
 #include "TetrisWindow.h"
@@ -20,7 +20,7 @@ class Block:public BaseEntity
 {
 private:
 	TetrisWindow * m_iWindow;
-	PlayGround* m_iMatPlay;
+	PlayGround* m_iPlay;
 	uint8_t m_iField;
 
 	Mat m_iMatBlock;
@@ -38,7 +38,7 @@ private:
 	//array<array<uint16_t, 2>, 4> m_iMatBoxPointArr;//表示box绘图点在block中的位置
 public:
 	Block(TetrisWindow* window,
-		PlayGround* m_iMatPlay,
+		PlayGround* m_iPlay,
 		Point m_pPoint,
 		uint16_t m_pWidth,
 		uint16_t m_pHeight,
@@ -65,7 +65,7 @@ public:
 
 
 	TetrisWindow* const GetWindow() { return m_iWindow; }
-	PlayGround* const GetPlay() { return m_iMatPlay; }
+	PlayGround* const GetPlay() { return m_iPlay; }
 
 };
 #endif // !_BLOCK_H

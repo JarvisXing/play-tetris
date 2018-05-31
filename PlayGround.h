@@ -17,6 +17,7 @@ private:
 	TetrisWindow * m_iWindow;
 	Mat m_iMatPlay;
 	Mat m_iMatSolid;
+	Block* m_iBlock;
 	array<array<bool, 10>,  20> m_iMatBoxArr;
 	set<array<int, 2>> m_iBoxPointSet;
 	set<Box*> m_iBoxSet;
@@ -41,6 +42,7 @@ public:
 	void DetectCollision(Block m_pBlock);
 
 	TetrisWindow* const GetWindow() { return m_iWindow; }
+	Block* const GetBlock() { return m_iBlock; }
 
 };
 

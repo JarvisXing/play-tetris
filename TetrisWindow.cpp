@@ -8,13 +8,18 @@ m_iNumPlayW(10),m_iNumPlayH(20)
 {
 	m_iWidth = m_iNumBoxX * (m_iBoxPix + m_iGapPix) + m_iGapPix;
 	m_iHeight = m_iNumBoxY * (m_iBoxPix + m_iGapPix) + m_iGapPix;
+	cout<<"Window size: width "<<m_iWidth<<" height "<<m_iHeight<<endl;
 	Mat tmp_Window(m_iHeight, m_iWidth, CV_8UC3, SetColor(m_iColor));
 	m_iMatWindow = tmp_Window;
 	m_iBlockW =(m_iNumBlockW) * (m_iBoxPix + m_iGapPix) +  m_iGapPix;
 	m_iBlockH =(m_iNumBlockH )* (m_iBoxPix + m_iGapPix) + m_iGapPix;
+	cout << "Block size: width " << m_iBlockW << " height " << m_iBlockH << endl;
+
 	m_iPlayW = (m_iNumPlayW)* (m_iBoxPix + m_iGapPix) + m_iGapPix;
 	m_iPlayH = (m_iNumPlayH)* (m_iBoxPix + m_iGapPix) + m_iGapPix;
-	}
+	cout << "Play size: width " << m_iPlayW << " height " << m_iPlayH << endl;
+
+}
 
 
 TetrisWindow::~TetrisWindow()
@@ -23,11 +28,11 @@ TetrisWindow::~TetrisWindow()
 void TetrisWindow::InitWindow()
 {
 	Box* box = new Box(this, NULL,NULL,Point(300,120), m_iBoxPix, m_iBoxPix, GREY);
-	m_iMatBox = box;
+	m_iBox = box;
 	Block* block = new Block(this,NULL, Point(290, 20), m_iBlockW, m_iBlockH, WHITE);
-	m_iMatBlock = block;
+	m_iBlock = block;
 	PlayGround* play = new PlayGround(this, Point(20, 20), m_iPlayW, m_iPlayH, BLUE);
-	m_iMatPlay = play;
+	m_iPlay = play;
 }
 void TetrisWindow::ExitWindow()
 {
@@ -42,9 +47,9 @@ void TetrisWindow::ShowWindow()
 }
 void TetrisWindow::UpdateWindow()
 {
-	SetMatWindow(m_iMatBox->DisplayEntity());
-	SetMatWindow(m_iMatBlock->DisplayEntity());
-	SetMatWindow(m_iMatPlay->DisplayEntity());
+	SetMatWindow(m_iBox->DisplayEntity());
+	SetMatWindow(m_iBlock->DisplayEntity());
+	SetMatWindow(m_iPlay->DisplayEntity());
 }
 String TetrisWindow::GetWindowName()
 {
@@ -60,14 +65,14 @@ void TetrisWindow::SetMatWindow(Mat m_pNewMat)
 }
 Box* TetrisWindow::GetBox()
 {
-	return m_iMatBox;
+	return m_iBox;
 }
 Block* TetrisWindow::GetBlock()
 {
-	return m_iMatBlock;
+	return m_iBlock;
 }
 PlayGround* TetrisWindow::GetPlayGround()
 {
-	return m_iMatPlay;
+	return m_iPlay;
 
 }
