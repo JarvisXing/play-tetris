@@ -28,8 +28,9 @@ int main()
 	{	
 		waitKey(1000);
 
-		Window->GetBox()->UpdateEntity(Point(20, 20 * i));
-		Window->GetBlock()->UpdateEntity(Point(30, 30+20*i));
+		Window->GetBox()->UpdateEntity(Point(300, 120 + 25*i));
+		Window->GetBlock()->UpdateEntity(Point(290, 20));
+		Window->GetPlayGround()->UpdateEntity(Point(20, 20));
 		Window->UpdateWindow();
 		Window->ShowWindow();
 

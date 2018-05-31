@@ -1,39 +1,87 @@
 #include"PlayGround.h"
-#include<vector>
-#include<list>
-#include<string>
-#include<iostream>
-#include<algorithm>
-using namespace std;
-class PlayRow;
-
-PlayGround::PlayGround(Point m_pPlayGroundPoint) :
-	m_iWidth(20 * 10 + (10 + 1) * 5),
-	m_iHeight(20 * 20 + (20 + 1) * 5)
+class Box;
+class Block;
+PlayGround::PlayGround(TetrisWindow* window,
+	Point m_pPoint, uint16_t m_pWidth, uint16_t m_pHeight, TypeColor m_pColor) :
+	BaseEntity(m_pPoint, m_pWidth, m_pHeight, m_pColor),
+	m_iWindow(window),m_iDetect(DETECT_NONE)
 {
-	m_iPlayGroundPoint = m_pPlayGroundPoint;
-
-	m_iColor = SetColor(GREY);
-	Mat tmp_playground(m_iHeight, m_iWidth, CV_8UC3, m_iColor);
-	for (size_t i = 0; i<m_iGroundStatus.size(); i++)
-	{
-		Point tmp;
-		tmp = Point(0, int((20+5)*i+0));
-		PlayRow* rt = new PlayRow(tmp,int(i));
-		rowlist.push_back(rt);
-		m_iGroundStatus[i].fill(false);
-		rt->UpdatePlayRow(m_iGroundStatus[i]);
-		rt->DisplayPlayRow(tmp_playground);
-	}
-	m_iPlayGround = tmp_playground;
+	Mat tmp_play(GetHeight(), GetWidth(), CV_8UC3, SetColor(m_pColor));
+	m_iMatPlay = tmp_play;
+	m_iMatBoxArr.fill({ true ,true,true,true ,true,true, true ,true,true, true});
+	InitPlay();
 }
 PlayGround::~PlayGround()
 {
+	
+}
+void PlayGround::InitPlay()
+{
+	int tmp_row = 0;//row
+	
+	for (auto it = m_iMatBoxArr.begin();it!= m_iMatBoxArr.end();it++)
+	{		
+		int tmp_col = 0;//column
+
+		for (auto ik = it->begin(); ik != it->end(); ik++)
+		{	
+
+			if (*ik == true)
+			{		
+				//cout << "-tmp_row-" << tmp_row << "-tmp_col-" << tmp_col << endl;
+
+				m_iBoxPointSet.insert({ tmp_row, tmp_col});
+				Point tmp;
+				tmp = Point((20 + 5) * tmp_col+ 5, (20 + 5) * tmp_row + 5);
+				Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
+
+				m_iBoxSet.insert(box);
+				SetMatPlay(box->DisplayEntity());
+			}
+			tmp_col++;
+		}
+		tmp_row++;
+		
+	}
+	
+}
+void PlayGround::UpdateEntity(Point m_newPoint)
+{
+	SetPoint(m_newPoint);
 
 }
+Mat PlayGround::DisplayEntity()
+{
+	Mat m_pBackGround = m_iWindow->GetMatWindow();
+	Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
+	addWeighted(tmp_BackGround, 0, m_iMatPlay, 1, 0, tmp_BackGround);
+	return m_pBackGround;
+}
+Mat PlayGround::HideEntity()
+{
+	Mat m_pBackGround = m_iWindow->GetMatWindow();
+	Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
+	addWeighted(tmp_BackGround, 0, m_iMatPlay, 0, 0, tmp_BackGround);
+	return m_pBackGround;
+}
+
+Mat PlayGround::GetMatPlay()
+{
+	return m_iMatPlay;
+}
+void PlayGround::SetMatPlay(Mat m_pNewMat)
+{
+	m_iMatPlay = m_pNewMat;
+
+}
+void PlayGround::DetectCollision(Block m_pBlock)
+{
+
+}
+/*
 void PlayGround::UpdatePlayGround(Block m_pBlock)
 {
-	/*note£º deal with edge display*/
+	note£º deal with edge display
 	m_pBlock.GetBlockArray();
 	for (auto it = m_pBlock.m_iBoxArr.begin(); it != m_pBlock.m_iBoxArr.end(); it++)
 	{
@@ -62,7 +110,6 @@ Mat PlayGround::DisplayPalyGround(Mat m_pBackGround)
 }
 TypeDetect PlayGround::DetectCollision(Block m_pBlock)
 {
-	//edge detect
 	for (auto it = m_pBlock.m_iBoxArr.begin(); it != m_pBlock.m_iBoxArr.end(); it++)
 	{
 		int tmpy = m_pBlock.m_iLocation.y + (*it)[1];
@@ -86,7 +133,6 @@ TypeDetect PlayGround::DetectCollision(Block m_pBlock)
 
 	}
 
-	//block detect
 	list<array<int, 2>> tmp_detect;
 
 	for (auto it = m_pBlock.m_iBoxArr.begin(); it != m_pBlock.m_iBoxArr.end(); it++)
@@ -129,10 +175,6 @@ TypeDetect PlayGround::DetectCollision(Block m_pBlock)
 	}
 	cout << s_detect.size() << endl;
 	return DETECT_NONE;
-	/*
-	for (auto it = s_detect.begin(); it != s_detect.end(); it++)
-	{
-	if((*it)[1]>16)
 
-	}*/
 }
+*/

@@ -2,11 +2,13 @@
 #define TETRIS_WINDOW_H
 #include "Box.h"
 #include "Block.h"
+#include "PlayGround.h"
 #include <opencv2/opencv.hpp>
 #include <string>
 using namespace cv;
 class Box;
 class Block;
+class PlayGround;
 class TetrisWindow
 {
 private:
@@ -25,9 +27,15 @@ private:
 	uint16_t m_iNumBlockH;
 	uint16_t m_iBlockW;
 	uint16_t m_iBlockH;
+
+	uint16_t m_iNumPlayW;
+	uint16_t m_iNumPlayH;
+	uint16_t m_iPlayW;
+	uint16_t m_iPlayH;
+
 	Box* m_iMatBox;
 	Block* m_iMatBlock;
-
+	PlayGround* m_iMatPlay;
 public:
 	TetrisWindow();
 	virtual ~TetrisWindow();
@@ -40,6 +48,8 @@ public:
 	void SetMatWindow(Mat m_pNewMat);
 	Box* GetBox();
 	Block* GetBlock();
+	PlayGround* GetPlayGround();
+
 };
 
 

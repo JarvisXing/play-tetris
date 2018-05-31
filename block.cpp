@@ -2,14 +2,19 @@
 
 class Box;
 
-Block::Block(TetrisWindow* window,
+Block::Block(TetrisWindow* window, PlayGround* m_iMatPlay,
 	Point m_pPoint, uint16_t m_pWidth, uint16_t m_pHeight, TypeColor m_pColor):
 	BaseEntity(m_pPoint, m_pWidth, m_pHeight, m_pColor),
 	m_iWindow(window)
 {		
 	Mat tmp_block(GetHeight(), GetWidth(), CV_8UC3, SetColor(m_pColor));
 	m_iMatBlock = tmp_block;
-
+	if (m_iWindow != NULL)
+		m_iField = IN_WINDOW;
+	else if (m_iMatPlay != NULL)
+		m_iField = IN_PLAYGROUND;
+	else
+		m_iField = IN_NONE;
 	InitBlock();
 
 }
@@ -31,7 +36,7 @@ void Block::InitBlock()
 	{
 		Point tmp;
 		tmp = Point(ik->x, ik->y);
-		Box* box = new Box(NULL,this, tmp, 20, 20, GREEN);
+		Box* box = new Box(NULL,this,NULL, tmp, 20, 20, GREEN);
 
 		m_iMatBoxList.push_back(box);
 		SetMatBlock(box->DisplayEntity());
@@ -548,17 +553,38 @@ list<Point> Block::GetPointList()
 
 Mat Block::DisplayEntity()
 {
-	Mat m_pBackGround = m_iWindow->GetMatWindow();
-	Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
-	addWeighted(tmp_BackGround, 0, m_iMatBlock, 1, 0, tmp_BackGround);
-	return m_pBackGround;
+	if (m_iField == IN_WINDOW)
+	{
+		Mat m_pBackGround = m_iWindow->GetMatWindow();
+		Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
+		addWeighted(tmp_BackGround, 0, m_iMatBlock, 1, 0, tmp_BackGround);
+		return m_pBackGround;
+	}
+	if (m_iField == IN_PLAYGROUND)
+	{
+		Mat m_pBackGround = m_iMatPlay->GetMatPlay();
+		Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
+		addWeighted(tmp_BackGround, 0, m_iMatBlock, 1, 0, tmp_BackGround);
+		return m_pBackGround;
+	}
+
 }
 Mat Block::HideEntity()
 {
-	Mat m_pBackGround = m_iWindow->GetMatWindow();
-	Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
-	addWeighted(tmp_BackGround, 0, m_iMatBlock, 0, 0, tmp_BackGround);
-	return m_pBackGround;
+	if (m_iField == IN_WINDOW)
+	{
+		Mat m_pBackGround = m_iWindow->GetMatWindow();
+		Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
+		addWeighted(tmp_BackGround, 0, m_iMatBlock, 0, 0, tmp_BackGround);
+		return m_pBackGround;
+	}
+	if (m_iField == IN_PLAYGROUND)
+	{
+		Mat m_pBackGround = m_iMatPlay->GetMatPlay();
+		Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
+		addWeighted(tmp_BackGround, 0, m_iMatBlock, 0, 0, tmp_BackGround);
+		return m_pBackGround;
+	}
 }
 void Block::MoveBlock(TypeMoveDir m_pMoveDir)
 {
@@ -578,7 +604,3 @@ void Block::MoveBlock(TypeMoveDir m_pMoveDir)
 	}
 }
 
-void Block::UpdateBlock()
-{
-
-}

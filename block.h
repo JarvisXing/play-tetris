@@ -3,12 +3,13 @@
 #include "BaseEntity.h"
 #include "Box.h"
 #include "TetrisWindow.h"
-
+#include "PlayGround.h"
 #include "TypeName.h"
 #include<opencv2/opencv.hpp>
 using namespace cv;
 class TetrisWindow;
 class Box;
+class PlayGround;
 struct Location
 {
 	uint8_t x;
@@ -19,6 +20,9 @@ class Block:public BaseEntity
 {
 private:
 	TetrisWindow * m_iWindow;
+	PlayGround* m_iMatPlay;
+	uint8_t m_iField;
+
 	Mat m_iMatBlock;
 	Mat m_iMatSolid;
 	list<Box*> m_iMatBoxList;	
@@ -34,6 +38,7 @@ private:
 	//array<array<uint16_t, 2>, 4> m_iMatBoxPointArr;//表示box绘图点在block中的位置
 public:
 	Block(TetrisWindow* window,
+		PlayGround* m_iMatPlay,
 		Point m_pPoint,
 		uint16_t m_pWidth,
 		uint16_t m_pHeight,
@@ -58,9 +63,9 @@ public:
 	inline Point ComputePoint(int x, int y);
 	list<Point> GetPointList();
 
-	void UpdateBlock();
 
 	TetrisWindow* const GetWindow() { return m_iWindow; }
+	PlayGround* const GetPlay() { return m_iMatPlay; }
 
 };
 #endif // !_BLOCK_H
