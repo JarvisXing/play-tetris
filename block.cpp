@@ -29,8 +29,10 @@ void Block::InitBlock()
 	m_iDirection = rand() % 4;	
 	//TODO:modify Compute array & Compute point
 	m_iBoxPos = ComputePos();
+	UpdateBlockArray();
 	m_iBoxPointList = GetPointList();//TODO: maybe change to array
-	for (auto ik = m_iBoxPointList.begin(); ik != m_iBoxPointList.end(); ik++)
+	
+	/*for (auto ik = m_iBoxPointList.begin(); ik != m_iBoxPointList.end(); ik++)
 	{
 		Point tmp;
 		tmp = Point(ik->x, ik->y);
@@ -38,14 +40,14 @@ void Block::InitBlock()
 
 		m_iMatBoxList.push_back(box);
 		SetMatBlock(box->DisplayEntity());
-	}
+	}*/
 
 }
 void Block::UpdateEntity(Point m_newPoint)
 {	
 
 	SetPoint(m_newPoint);
-	RotateBlockCW();
+	//RotateBlockCW();
 
 	Mat tmp_solid(GetHeight(), GetWidth(), CV_8UC3, GetColor());
 	m_iMatSolid = tmp_solid;
@@ -55,9 +57,26 @@ void Block::UpdateEntity(Point m_newPoint)
 	for (auto ik = m_iBoxPointList.begin(); ik != m_iBoxPointList.end(); ik++)
 	{			
 		(*it)->UpdateEntity(Point(ik->x, ik->y));
-		SetMatBlock((*it)->DisplayEntity());		
-	}	
+		SetMatBlock((*it)->DisplayEntity());
+		*it++;
+	}
 	
+}
+void Block::UpdateArr()
+{
+	int i = 0;
+	for (auto it = m_iMatBoxArr.begin(); it != m_iMatBoxArr.end(); it++)
+	{
+		//cout <<"update "<< (*it)[0] <<"   " <<(*it)[1] <<endl;
+		m_iAbsLocArr[i][0] = (*it)[0] + m_iLocation.x;
+		m_iAbsLocArr[i][1] = (*it)[1] + m_iLocation.y;
+		i++;
+	}
+	/*for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
+	{
+		cout <<"abs " <<(*it)[0] << "   " << (*it)[1] << endl;
+	}*/
+
 }
 void Block::SetMatBlock(Mat m_pNewMat)
 {
@@ -89,6 +108,7 @@ void Block::RotateBlockCW()
 		break;
 	}
 	m_iBoxPos = ComputePos();
+	UpdateBlockArray();
 	m_iBoxPointList = GetPointList();
 }
 //D0->D1->D2->D3
@@ -112,6 +132,7 @@ void Block::RotateBlockCCW()
 		break;
 	}
 	m_iBoxPos = ComputePos();
+	UpdateBlockArray();
 	m_iBoxPointList = GetPointList();
 }
 
@@ -259,12 +280,15 @@ inline int Block::ComputePos()
 	return tmp_BoxPos;
 }
 
-inline Point Block::ComputePoint(int x, int y)
+ inline Point Block::ComputePoint(int x, int y)
 {
 	return Point((20 + 5) * x + 5, (20 + 5) * y + 5);
 }
-
-void Block::GetBlockArray()
+ Point Block::LocToPoint()
+ {
+	 return Point((20 + 5) * m_iLocation.x , (20 + 5) * m_iLocation.y);
+ }
+void Block::UpdateBlockArray()
 {
 	cout << "Pos " << m_iBoxPos << endl;
 	switch (m_iBoxPos)
@@ -405,7 +429,10 @@ void Block::GetBlockArray()
 		break;
 	}
 }
-
+array<array<int, 2>, 4> Block::GetBlockArray()
+{
+	return m_iAbsLocArr;
+}
 list<Point> Block::GetPointList()
 {
 	list<Point> tmp_PointList;
@@ -601,5 +628,6 @@ void Block::MoveBlock(TypeMoveDir m_pMoveDir)
 	default:
 		break;
 	}
+	//return LocToPoint(m_iLocation.x, m_iLocation.y);
 }
 

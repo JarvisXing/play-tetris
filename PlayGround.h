@@ -19,9 +19,13 @@ private:
 	Mat m_iMatSolid;
 	Block* m_iBlock;
 	array<array<bool, 10>,  20> m_iMatBoxArr;
+	array<array<bool, 10>, 20> m_iMatSolidArr;
+
 	set<array<int, 2>> m_iBoxPointSet;
 	set<Box*> m_iBoxSet;
 	TypeDetect m_iDetect;
+	list<Box*> m_iMatBoxList;
+	array<array<int, 2>, 4> m_iAbsLocArr;//block的绝对位置坐标
 	//TODO: Box* array
 public:
 	PlayGround(TetrisWindow* window,
@@ -39,7 +43,8 @@ public:
 
 	Mat GetMatPlay();
 	void SetMatPlay(Mat m_pNewMat);
-	void DetectCollision(Block m_pBlock);
+	TypeDetect DetectEdge();
+	TypeDetect DetectCollision();
 
 	TetrisWindow* const GetWindow() { return m_iWindow; }
 	Block* const GetBlock() { return m_iBlock; }

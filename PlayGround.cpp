@@ -17,9 +17,10 @@ PlayGround::~PlayGround()
 }
 void PlayGround::InitPlay()
 {
-	//m_iMatBoxArr.fill({ true ,true,true,true ,true,true, true ,true,true, true });
+	m_iMatBoxArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
+	m_iMatSolidArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
+
 	//int tmp_row = 0;//row
-	//
 	//for (auto it = m_iMatBoxArr.begin();it!= m_iMatBoxArr.end();it++)
 	//{		
 	//	int tmp_col = 0;//column
@@ -43,7 +44,7 @@ void PlayGround::InitPlay()
 	//}
 
 
-	Block* block = new Block(NULL, this, Point(5, 5), 105, 105, WHITE);
+	Block* block = new Block(NULL, this, Point(0, 30), 105, 135, BLUE);
 	m_iBlock= block;
 	SetMatPlay(block->DisplayEntity());
 
@@ -51,10 +52,121 @@ void PlayGround::InitPlay()
 void PlayGround::UpdateEntity(Point m_newPoint)
 {
 	SetPoint(m_newPoint);
-	m_iBlock->UpdateEntity(Point(40, 20));
-	SetMatPlay(m_iBlock->DisplayEntity());
+	Mat tmp_solid(GetHeight(), GetWidth(), CV_8UC3, GetColor());
+	m_iMatSolid = tmp_solid;
+	SetMatPlay(m_iMatSolid);
+	
+	//Point tmp_Point;
+	//tmp_Point = m_iBlock->LocToPoint();
+	//m_iBlock->UpdateEntity(tmp_Point);
+	//SetMatPlay(m_iBlock->DisplayEntity());
 
+	m_iBlock->UpdateArr();
+	m_iAbsLocArr=m_iBlock->GetBlockArray();
+	TypeDetect typedetect = DetectEdge();
+	char pointKey = waitKey(1000);
+
+	switch (pointKey)
+	{
+	case 'a':
+		if (typedetect != DETECT_LEFT)
+		{
+			m_iBlock->MoveBlock(MOVE_LEFT);
+		}
+		break;
+	case 'd':
+		if (typedetect != DETECT_RIGHT)
+		{
+			m_iBlock->MoveBlock(MOVE_RIGHT);
+		}
+		break;
+	case 's':
+		if (typedetect != DETECT_BELOW)
+		{
+			m_iBlock->MoveBlock(MOVE_DOWN);
+		}
+		break;
+	case 'w':
+		m_iBlock->RotateBlockCW();
+		break;
+	default:
+		break;
+	}
+
+	if (typedetect != DETECT_BELOW)
+	{	
+		typedetect=DetectCollision();
+		m_iBlock->MoveBlock(MOVE_DOWN);
+	}
+
+	//draw box
+	for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
+	{
+		//cout << "play " << (*it)[0] << "   " << (*it)[1] << endl;
+
+		m_iMatBoxArr[(*it)[1]][(*it)[0]] = true;
+		
+		Point tmp;
+		tmp = Point((20 + 5) * (*it)[0] + 5, (20 + 5) * (*it)[1] + 5);
+		Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
+		SetMatPlay(box->DisplayEntity());
+	}
+	int tmp_row = 0;//row
+	for (auto it = m_iMatSolidArr.begin(); it != m_iMatSolidArr.end(); it++)
+	{
+		int tmp_col = 0;//column
+
+		for (auto ik = it->begin(); ik != it->end(); ik++)
+		{
+			if (*ik == true)
+			{
+				Point tmp;
+				tmp = Point((20 + 5) * tmp_col + 5, (20 + 5) * tmp_row + 5);
+				Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
+				SetMatPlay(box->DisplayEntity());
+			}
+			tmp_col++;
+		}
+		tmp_row++;
+	}
+	if (typedetect == DETECT_BELOW || typedetect==DETECT_BLOCK)
+	{
+		//update m_iMatSolidArr
+		for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
+		{
+			m_iMatSolidArr[(*it)[1]][(*it)[0]] = true;
+		}
+		m_iMatBoxArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
+
+		cout << "New block" << endl;
+		Block* block = new Block(NULL, this, Point(0, 30), 105, 135, BLUE);
+		m_iBlock = block;
+		SetMatPlay(block->DisplayEntity());
+		typedetect = DETECT_NONE;
+	}
+	tmp_row = 0;//row
+	for (auto it = m_iMatSolidArr.begin(); it != m_iMatSolidArr.end(); it++)
+	{
+		int tmp_col = 0;//column
+
+		for (auto ik = it->begin(); ik != it->end(); ik++)
+		{
+			if (*ik == true)
+			{
+				Point tmp;
+				tmp = Point((20 + 5) * tmp_col + 5, (20 + 5) * tmp_row + 5);
+				Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
+				SetMatPlay(box->DisplayEntity());
+			}
+			tmp_col++;
+		}
+		tmp_row++;
+	}
+
+	
 }
+
+
 Mat PlayGround::DisplayEntity()
 {
 	Mat m_pBackGround = m_iWindow->GetMatWindow();
@@ -79,100 +191,82 @@ Mat PlayGround::GetMatPlay()
 	return m_iMatPlay;
 }
 
-void PlayGround::DetectCollision(Block m_pBlock)
+TypeDetect PlayGround::DetectEdge()
 {
-
-}
-/*
-void PlayGround::UpdatePlayGround(Block m_pBlock)
-{
-	note£º deal with edge display
-	m_pBlock.GetBlockArray();
-	for (auto it = m_pBlock.m_iBoxArr.begin(); it != m_pBlock.m_iBoxArr.end(); it++)
+	for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
 	{
-		cout << "tmp " << (*it)[1] << "  " << (*it)[0] << endl;
+		cout << "edge "<<(*it)[0] << "   " << (*it)[1] << endl;
 
-		int tmpy = m_pBlock.m_iLocation.y + (*it)[1];
-		int tmpx = m_pBlock.m_iLocation.x + (*it)[0];
-		cout << "tmpyx " << tmpy << "  " << tmpx << endl;
-		m_iGroundStatus[tmpy][tmpx] = true;
-	}
+		int tmpx = (*it)[0];
+		int tmpy = (*it)[1];
 
-	auto ik = rowlist.begin();
-	for (size_t i = 0; i < m_iGroundStatus.size(); i++)
-	{
-		(*ik)->UpdatePlayRow(m_iGroundStatus[i]);
-		(*ik)->DisplayPlayRow(m_iPlayGround);
-		ik++;
-	}
-}
-TypeDetect PlayGround::DetectCollision(Block m_pBlock)
-{
-	for (auto it = m_pBlock.m_iBoxArr.begin(); it != m_pBlock.m_iBoxArr.end(); it++)
-	{
-		int tmpy = m_pBlock.m_iLocation.y + (*it)[1];
-		int tmpx = m_pBlock.m_iLocation.x + (*it)[0];
-
-		if (tmpy + 1 > 14)
+		if (tmpy + 1 > 19)
 		{
 			cout << "detect below" << endl;
 			return DETECT_BELOW;
 		}
-		if (tmpx + 1 > 7)
+		if (tmpx + 1 > 9)
 		{
 			cout << "detect right" << endl;
 			return DETECT_RIGHT;
 		}
-		if (tmpx - 1 < 1)
+		if (tmpx - 1 < 0)
 		{
 			cout << "detect left" << endl;
 			return DETECT_LEFT;
 		}
 
 	}
+	return DETECT_NONE;
+}
 
+
+TypeDetect PlayGround::DetectCollision()
+{
 	list<array<int, 2>> tmp_detect;
 
-	for (auto it = m_pBlock.m_iBoxArr.begin(); it != m_pBlock.m_iBoxArr.end(); it++)
+	for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
 	{
-		int tmpy = m_pBlock.m_iLocation.y + (*it)[1];
-		int tmpx = m_pBlock.m_iLocation.x + (*it)[0];
-
-		if (m_iGroundStatus[tmpy + 1][tmpx] == true)
+		int tmpx = (*it)[0];
+		int tmpy = (*it)[1];
+		cout << "colli " << tmpx <<"  "<< tmpy << endl;
+		if (m_iMatSolidArr[tmpy + 1][tmpx] == true)
 		{
 			tmp_detect.push_back({ tmpx ,tmpy + 1 });
 		}
-		if (m_iGroundStatus[tmpy][tmpx - 1] == true)
+		//TODO: x<0,y<0
+		if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
 		{
 			tmp_detect.push_back({ tmpx - 1,tmpy });
 		}
-		if (m_iGroundStatus[tmpy][tmpx + 1] == true)
+		if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
 		{
 			tmp_detect.push_back({ tmpx + 1,tmpy });
 		}
-		if (m_iGroundStatus[tmpy - 1][tmpx] == true)
-		{
-			tmp_detect.push_back({ tmpx,tmpy - 1 });
-		}
+		//if (m_iMatSolidArr[tmpy - 1][tmpx] == true)
+		//{
+		//	tmp_detect.push_back({ tmpx,tmpy - 1 });
+		//}
 	}
 	set<array<int, 2>> s_detect(tmp_detect.begin(), tmp_detect.end());
 	set<array<int, 2>>::iterator iter;
 
-	for (auto ik = m_pBlock.m_iBoxArr.begin(); ik != m_pBlock.m_iBoxArr.end(); ik++)
+	for (auto ik = m_iAbsLocArr.begin(); ik != m_iAbsLocArr.end(); ik++)
 	{
-		int tmpy = m_pBlock.m_iLocation.y + (*ik)[1];
-		int tmpx = m_pBlock.m_iLocation.x + (*ik)[0];
+		int tmpx = (*ik)[0];
+		int tmpy = (*ik)[1];
 		iter = s_detect.find({ tmpx,tmpy });
 		if (iter != s_detect.end()) {
 			s_detect.erase(iter);
 			cout << " find the student!" << endl;
+			return DETECT_BLOCK;
+
 		}
 		else {
 			cout << "Cannot find the student!" << endl;
+			return DETECT_NONE;
+
 		}
 	}
-	cout << s_detect.size() << endl;
-	return DETECT_NONE;
-
+	//cout << s_detect.size() << endl;
 }
-*/

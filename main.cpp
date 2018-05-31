@@ -25,13 +25,16 @@ int main()
 	Window->ShowWindow();
 	cout << "after init" << endl;
 	int i = 0;
-	while (i < 10)
+	while (i < 100)
 	{	
-		waitKey(1000);
-
-		Window->GetBox()->UpdateEntity(Point(300, 120 + 25*i));
-		Window->GetBlock()->UpdateEntity(Point(290, 20));
+		cout << "cnt i " << i << endl;
+		//Box demo
+		//Window->GetBox()->UpdateEntity(Point(300, 120 + 25*i));
+		//Next
+		//Window->GetBlock()->UpdateEntity(Point(290, 20));
+		//Playgroundd
 		Window->GetPlayGround()->UpdateEntity(Point(20, 20));
+
 		Window->UpdateWindow();
 		Window->ShowWindow();
 

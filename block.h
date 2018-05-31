@@ -25,6 +25,7 @@ private:
 
 	Mat m_iMatBlock;
 	Mat m_iMatSolid;
+
 	list<Box*> m_iMatBoxList;	
 	//array<array<bool, 4>, 4> m_iMatBlockArr;//表示显示block形状方向的数组
 
@@ -35,6 +36,8 @@ private:
 	int m_iBoxPos;//middle varient
 	list<Point> m_iBoxPointList;
 	array<array<int,2>, 4> m_iMatBoxArr;//表示box的形状及方向{1,2}{2,1}
+	array<array<int, 2>, 4> m_iAbsLocArr;//绝对位置坐标{1,2}{2,1}
+
 	//array<array<uint16_t, 2>, 4> m_iMatBoxPointArr;//表示box绘图点在block中的位置
 public:
 	Block(TetrisWindow* window,
@@ -47,6 +50,7 @@ public:
 
 	void InitBlock();	
 	void UpdateEntity(Point m_newPoint);
+	void UpdateArr();
 
 	Mat DisplayEntity();
 	Mat HideEntity();
@@ -55,12 +59,14 @@ public:
 	void SetMatBlock(Mat m_pNewMat);
 	void RotateBlockCW();//D3->D2->D1->D0
 	void RotateBlockCCW();//D0->D1->D2->D3
-	void MoveBlock(TypeMoveDir m_pMoveDir);//
+	void MoveBlock(TypeMoveDir m_pMoveDir);
 
-	void GetBlockArray();
-
+	void UpdateBlockArray();
+	array<array<int, 2>, 4> GetBlockArray();
 	inline int ComputePos();
 	inline Point ComputePoint(int x, int y);
+	Point LocToPoint();
+
 	list<Point> GetPointList();
 
 

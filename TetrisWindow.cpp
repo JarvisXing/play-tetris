@@ -27,8 +27,8 @@ TetrisWindow::~TetrisWindow()
 }
 void TetrisWindow::InitWindow()
 {
-	Box* box = new Box(this, NULL,NULL,Point(300,120), m_iBoxPix, m_iBoxPix, GREY);
-	m_iBox = box;
+	/*Box* box = new Box(this, NULL,NULL,Point(300,120), m_iBoxPix, m_iBoxPix, GREY);
+	m_iBox = box;*/
 	Block* block = new Block(this,NULL, Point(290, 20), m_iBlockW, m_iBlockH, WHITE);
 	m_iBlock = block;
 	PlayGround* play = new PlayGround(this, Point(20, 20), m_iPlayW, m_iPlayH, BLUE);
@@ -47,7 +47,7 @@ void TetrisWindow::ShowWindow()
 }
 void TetrisWindow::UpdateWindow()
 {
-	SetMatWindow(m_iBox->DisplayEntity());
+	//SetMatWindow(m_iBox->DisplayEntity());
 	SetMatWindow(m_iBlock->DisplayEntity());
 	SetMatWindow(m_iPlay->DisplayEntity());
 }
