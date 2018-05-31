@@ -3,7 +3,13 @@
 #include <string>
 #include <iostream>
 using namespace std;
-
+enum TypeField
+{
+	IN_NONE = 0,
+	IN_WINDOW,
+	IN_BLOCK,
+	IN_PLAYGROUND,
+};
 enum TypeName
 {
 	I_BLOCK = 0,

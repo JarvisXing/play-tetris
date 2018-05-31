@@ -1,48 +1,70 @@
-#include"block.h"
+#include"Block.h"
 
-#include<vector>
-#include<list>
-#include<string>
-#include<iostream>
-using namespace std;
 class Box;
 
-Block::Block(Point m_pBlockPoint) :
-	m_iWidth(20 * 4 + (4 + 1) * 5),
-	m_iHeight(20 * 4 + (4 + 1) * 5)
-{	
-	m_iLocation.x = 3;
-	m_iLocation.y = 0;
+Block::Block(TetrisWindow* window,
+	Point m_pPoint, uint16_t m_pWidth, uint16_t m_pHeight, TypeColor m_pColor):
+	BaseEntity(m_pPoint, m_pWidth, m_pHeight, m_pColor),
+	m_iWindow(window)
+{		
+	Mat tmp_block(GetHeight(), GetWidth(), CV_8UC3, SetColor(m_pColor));
+	m_iMatBlock = tmp_block;
 
-	m_iBoxArr.fill({ 0,0 });
-
-	m_iBlockPoint=m_pBlockPoint;
-
-	m_iColor = SetColor(WHITE);
-	
-	m_iTypeName = rand() % 7;
-	m_iDirection = rand() % 4;
-	cout <<"block type "<< m_iTypeName<<"  " << m_iDirection << endl;
-	m_iBoxPos = ComputePos();
-	m_iBoxPointList = GetPointList();
-
-	Mat tmp_block(m_iHeight,m_iWidth, CV_8UC3, m_iColor);
-
-	for (auto ik = m_iBoxPointList.begin(); ik != m_iBoxPointList.end(); ik++)
-	{
-		Point tmp;
-		tmp = Point(ik->x, ik->y);
-		Box* rt = new Box(tmp);
-		boxlist.push_back(rt);
-		rt->DisplayBox(tmp_block);
-	}
-	m_iBlock = tmp_block;
+	InitBlock();
 
 }
 Block::~Block()
 {
- 
+	//delete box
+	//delete block
 }
+
+
+void Block::InitBlock()
+{
+	m_iTypeName = rand() % 7;
+	m_iDirection = rand() % 4;	
+	//TODO:modify Compute array & Compute point
+	m_iBoxPos = ComputePos();
+	m_iBoxPointList = GetPointList();//TODO: maybe change to array
+	for (auto ik = m_iBoxPointList.begin(); ik != m_iBoxPointList.end(); ik++)
+	{
+		Point tmp;
+		tmp = Point(ik->x, ik->y);
+		Box* box = new Box(NULL,this, tmp, 20, 20, GREEN);
+
+		m_iMatBoxList.push_back(box);
+		SetMatBlock(box->DisplayEntity());
+	}
+
+}
+void Block::UpdateEntity(Point m_newPoint)
+{	
+
+	SetPoint(m_newPoint);
+	RotateBlockCW();
+
+	Mat tmp_solid(GetHeight(), GetWidth(), CV_8UC3, GetColor());
+	m_iMatSolid = tmp_solid;
+	SetMatBlock(m_iMatSolid);
+	Point tmp;
+	auto it = m_iMatBoxList.begin();
+	for (auto ik = m_iBoxPointList.begin(); ik != m_iBoxPointList.end(); ik++)
+	{			
+		(*it)->UpdateEntity(Point(ik->x, ik->y));
+		SetMatBlock((*it)->DisplayEntity());		
+	}	
+	
+}
+void Block::SetMatBlock(Mat m_pNewMat)
+{
+	m_iMatBlock = m_pNewMat;
+}
+Mat Block::GetMatBlock()
+{
+	return m_iMatBlock;
+}
+
 //D3->D2->D1->D0
 void Block::RotateBlockCW()
 {
@@ -89,10 +111,7 @@ void Block::RotateBlockCCW()
 	m_iBoxPos = ComputePos();
 	m_iBoxPointList = GetPointList();
 }
-void Block::UpdateBlock(int x,int y)
-{
 
-}
 inline int Block::ComputePos()
 {
 	int tmp_BoxPos=0;
@@ -248,136 +267,136 @@ void Block::GetBlockArray()
 	switch (m_iBoxPos)
 	{
 	case 0x0F00:
-		m_iBoxArr[0]={3, 2};//3,2
-		m_iBoxArr[1]={2, 2};//2,2
-		m_iBoxArr[2]={1, 2};//1,2
-		m_iBoxArr[3]={0, 2};//0,2
+		m_iMatBoxArr[0]={3, 2};//3,2
+		m_iMatBoxArr[1]={2, 2};//2,2
+		m_iMatBoxArr[2]={1, 2};//1,2
+		m_iMatBoxArr[3]={0, 2};//0,2
 		break;
 	case 0x2222:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={1, 1};//1,1
-		m_iBoxArr[2]={1, 0};//1,0
-		m_iBoxArr[3]={1, 3};//1,3
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={1, 1};//1,1
+		m_iMatBoxArr[2]={1, 0};//1,0
+		m_iMatBoxArr[3]={1, 3};//1,3
 		break;
 	case 0x4444:
-		m_iBoxArr[0]={2, 3};//2,3
-		m_iBoxArr[1]={2, 2};//2,2
-		m_iBoxArr[2]={2, 1};//2,1
-		m_iBoxArr[3]={2, 0};//2,0
+		m_iMatBoxArr[0]={2, 3};//2,3
+		m_iMatBoxArr[1]={2, 2};//2,2
+		m_iMatBoxArr[2]={2, 1};//2,1
+		m_iMatBoxArr[3]={2, 0};//2,0
 		break;
 	case 0x0270:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={2, 1};//2,1
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={0, 1};//0,1
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={2, 1};//2,1
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={0, 1};//0,1
 		break;
 	case 0x0262:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={2, 1};//2,1
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={1, 0};//1,0
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={2, 1};//2,1
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={1, 0};//1,0
 		break;
 	case 0x0720:
-		m_iBoxArr[0]={2, 2};//2,2
-		m_iBoxArr[1]={1, 2};//1,2
-		m_iBoxArr[2]={0, 2};//0,2
-		m_iBoxArr[3]={1, 1};//1,1
+		m_iMatBoxArr[0]={2, 2};//2,2
+		m_iMatBoxArr[1]={1, 2};//1,2
+		m_iMatBoxArr[2]={0, 2};//0,2
+		m_iMatBoxArr[3]={1, 1};//1,1
 		break;
 	case 0x0232:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={1, 1};//1,1
-		m_iBoxArr[2]={0, 1};//0,1
-		m_iBoxArr[3]={1, 0};//1,0
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={1, 1};//1,1
+		m_iMatBoxArr[2]={0, 1};//0,1
+		m_iMatBoxArr[3]={1, 0};//1,0
 		break;
 	case 0x0170:
-		m_iBoxArr[0]={0, 2};//0,2
-		m_iBoxArr[1]={2, 1};//2,1
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={0, 1};//0,1
+		m_iMatBoxArr[0]={0, 2};//0,2
+		m_iMatBoxArr[1]={2, 1};//2,1
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={0, 1};//0,1
 		break;
 	case 0x0622:
-		m_iBoxArr[0]={2, 2};//2,2
-		m_iBoxArr[1]={1, 2};//1,2
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={1, 0};//1,0
+		m_iMatBoxArr[0]={2, 2};//2,2
+		m_iMatBoxArr[1]={1, 2};//1,2
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={1, 0};//1,0
 		break;
 	case 0x0740:
-		m_iBoxArr[0]={2, 2};//2,2
-		m_iBoxArr[1]={1, 2};//1,2
-		m_iBoxArr[2]={0, 2};//0,2
-		m_iBoxArr[3]={2, 1};//2,1
+		m_iMatBoxArr[0]={2, 2};//2,2
+		m_iMatBoxArr[1]={1, 2};//1,2
+		m_iMatBoxArr[2]={0, 2};//0,2
+		m_iMatBoxArr[3]={2, 1};//2,1
 		break;
 	case 0x0223:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={1, 1};//1,1
-		m_iBoxArr[2]={1, 0};//1,0
-		m_iBoxArr[3]={0, 0};//0,0
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={1, 1};//1,1
+		m_iMatBoxArr[2]={1, 0};//1,0
+		m_iMatBoxArr[3]={0, 0};//0,0
 		break;
 	case 0x0470:
-		m_iBoxArr[0]={2, 2};//2,2
-		m_iBoxArr[1]={2, 1};//2,1
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={0, 1};//0,1
+		m_iMatBoxArr[0]={2, 2};//2,2
+		m_iMatBoxArr[1]={2, 1};//2,1
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={0, 1};//0,1
 		break;
 	case 0x0226:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={1, 1};//1,1
-		m_iBoxArr[2]={2, 0};//2,0
-		m_iBoxArr[3]={1, 0};//1,0
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={1, 1};//1,1
+		m_iMatBoxArr[2]={2, 0};//2,0
+		m_iMatBoxArr[3]={1, 0};//1,0
 		break;
 	case 0x0710:
-		m_iBoxArr[0]={2, 2};//2,2
-		m_iBoxArr[1]={1, 2};//1,2
-		m_iBoxArr[2]={0, 2};//0,2
-		m_iBoxArr[3]={0, 1};//0,1
+		m_iMatBoxArr[0]={2, 2};//2,2
+		m_iMatBoxArr[1]={1, 2};//1,2
+		m_iMatBoxArr[2]={0, 2};//0,2
+		m_iMatBoxArr[3]={0, 1};//0,1
 		break;
 	case 0x0322:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={0, 2};//0,2
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={1, 0};//1,0
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={0, 2};//0,2
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={1, 0};//1,0
 		break;
 	case 0x0360:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={0, 2};//0,2
-		m_iBoxArr[2]={2, 1};//2,1
-		m_iBoxArr[3]={1, 1};//1,1
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={0, 2};//0,2
+		m_iMatBoxArr[2]={2, 1};//2,1
+		m_iMatBoxArr[3]={1, 1};//1,1
 		break;
 	case 0x0231:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={1, 1};//1,1
-		m_iBoxArr[2]={0, 1};//0,1
-		m_iBoxArr[3]={0, 0};//0,0
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={1, 1};//1,1
+		m_iMatBoxArr[2]={0, 1};//0,1
+		m_iMatBoxArr[3]={0, 0};//0,0
 		break;
 	case 0x0462:
-		m_iBoxArr[0]={2, 2};//2,2
-		m_iBoxArr[1]={2, 1};//2,1
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={1, 0};//1,0
+		m_iMatBoxArr[0]={2, 2};//2,2
+		m_iMatBoxArr[1]={2, 1};//2,1
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={1, 0};//1,0
 		break;
 	case 0x0630:
-		m_iBoxArr[0]={2, 2};//2,2
-		m_iBoxArr[1]={1, 2};//1,2
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={0, 1};//0,1
+		m_iMatBoxArr[0]={2, 2};//2,2
+		m_iMatBoxArr[1]={1, 2};//1,2
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={0, 1};//0,1
 		break;
 	case 0x0132:
-		m_iBoxArr[0]={0, 2};//0,2
-		m_iBoxArr[1]={1, 1};//1,1
-		m_iBoxArr[2]={0, 1};//0,1
-		m_iBoxArr[3]={1, 0};//1,0
+		m_iMatBoxArr[0]={0, 2};//0,2
+		m_iMatBoxArr[1]={1, 1};//1,1
+		m_iMatBoxArr[2]={0, 1};//0,1
+		m_iMatBoxArr[3]={1, 0};//1,0
 		break;
 	case 0x0264:
-		m_iBoxArr[0]={1, 2};//1,2
-		m_iBoxArr[1]={2, 1};//2,1
-		m_iBoxArr[2]={1, 1};//1,1
-		m_iBoxArr[3]={2, 0};//2,0
+		m_iMatBoxArr[0]={1, 2};//1,2
+		m_iMatBoxArr[1]={2, 1};//2,1
+		m_iMatBoxArr[2]={1, 1};//1,1
+		m_iMatBoxArr[3]={2, 0};//2,0
 		break;
 	case 0x0660:
-		m_iBoxArr[0]={2, 2};//2,2
-		m_iBoxArr[1]={1, 2};//1,2
-		m_iBoxArr[2]={2, 1};//2,1
-		m_iBoxArr[3]={1, 1};//1,1
+		m_iMatBoxArr[0]={2, 2};//2,2
+		m_iMatBoxArr[1]={1, 2};//1,2
+		m_iMatBoxArr[2]={2, 1};//2,1
+		m_iMatBoxArr[3]={1, 1};//1,1
 		break;
 	default:
 		break;
@@ -527,16 +546,18 @@ list<Point> Block::GetPointList()
 	return tmp_PointList;
 }
 
-Mat Block::DisplayBlock(Mat m_pBackGround)
+Mat Block::DisplayEntity()
 {
-	Mat tmp_BackGround = m_pBackGround(Rect(m_iBlockPoint.x, m_iBlockPoint.y, m_iWidth, m_iHeight));
-	addWeighted(tmp_BackGround, 0, m_iBlock, 1, 0, tmp_BackGround);
+	Mat m_pBackGround = m_iWindow->GetMatWindow();
+	Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
+	addWeighted(tmp_BackGround, 0, m_iMatBlock, 1, 0, tmp_BackGround);
 	return m_pBackGround;
 }
-Mat Block::HideBlock(Mat m_pBackGround)
+Mat Block::HideEntity()
 {
-	Mat tmp_BackGround = m_pBackGround(Rect(m_iBlockPoint.x, m_iBlockPoint.y, m_iWidth, m_iHeight));
-	addWeighted(tmp_BackGround, 0, m_iBlock, 0, 0, tmp_BackGround);
+	Mat m_pBackGround = m_iWindow->GetMatWindow();
+	Mat tmp_BackGround = m_pBackGround(Rect(GetPoint().x, GetPoint().y, GetWidth(), GetHeight()));
+	addWeighted(tmp_BackGround, 0, m_iMatBlock, 0, 0, tmp_BackGround);
 	return m_pBackGround;
 }
 void Block::MoveBlock(TypeMoveDir m_pMoveDir)
@@ -555,4 +576,9 @@ void Block::MoveBlock(TypeMoveDir m_pMoveDir)
 	default:
 		break;
 	}
+}
+
+void Block::UpdateBlock()
+{
+
 }

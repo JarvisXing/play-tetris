@@ -1,13 +1,7 @@
-#include <core/core.hpp>  
-#include <highgui/highgui.hpp>  
-#include <imgproc/imgproc.hpp>  
-#include <iostream>  
 #include <time.h>  
-#include "box.h"
-#include "block.h"
-#include "PlayRow.h"
-#include "PlayGround.h"
-#include <list>
+#include "TetrisWindow.h"
+#include <iostream>  
+
 using namespace std;
 using namespace cv;
 #define BOXPIXEL 20
@@ -19,12 +13,41 @@ int WinWidth = 10 * (BOXPIXEL + GAPPIXEL) + GAPPIXEL + 4 * (BOXPIXEL + GAPPIXEL)
 int WinHeight = 20 * (BOXPIXEL + GAPPIXEL) + GAPPIXEL + 2 * BOXPIXEL;
 
 String windowname = "Tetris by Jarvis";
+
+int main()
+{
+	time_t t;
+	t = time(NULL);
+	srand((unsigned)t);
+	TetrisWindow* Window = new TetrisWindow();
+	Window->InitWindow();
+	Window->UpdateWindow();
+	Window->ShowWindow();
+	int i = 0;
+	while (i < 10)
+	{	
+		waitKey(1000);
+
+		Window->GetBox()->UpdateEntity(Point(20, 20 * i));
+		Window->GetBlock()->UpdateEntity(Point(30, 30+20*i));
+		Window->UpdateWindow();
+		Window->ShowWindow();
+
+		i++;
+	}
+	Window->ExitWindow();
+	delete Window;
+	return 0;
+	
+}
+
 /*
 void MoveDirection(int waittime, bool &horizMove, bool &verMove, int &moveDirection);
 bool GameOver(const vector<Box> arraryBox);
 void MoveAccordingDirecton(const int moveDirection, vector<Box> &arraryBox, Box & boxTarget);
 void SnakeMove(vector<Box>&arraryBox1, vector<Box>&arraryBox, Mat &imageBackground);
 */
+/*
 int main()
 {
 	time_t t;
@@ -102,7 +125,7 @@ int main()
 	}
 
 	waitKey();
-}
+}*/
 
 
 /*

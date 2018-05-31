@@ -1,26 +1,34 @@
-#ifndef _BOX_H
-#define _BOX_H
-#include<opencv2/opencv.hpp>
-#include "TypeColor.h"
-using namespace cv;
+#ifndef BOX_H
+#define BOX_H
 
-class Box
+#include "BaseEntity.h"
+#include "TetrisWindow.h"
+#include "Block.h"
+#include "TypeName.h"
+#include<opencv2/opencv.hpp>
+using namespace cv;
+class TetrisWindow;
+class Block;
+class Box:public BaseEntity
 {
 private:
-	int m_iWidth;
-	int m_iHeight;
-	Scalar m_iColor;
-	Mat m_iBox;
-	Point m_iBoxPoint;
-	TypeColor m_iTypeColor;
-
+	TetrisWindow * m_iWindow;
+	Block* m_iMatBlock;
+	Mat m_iMatBox;
+	uint8_t m_iField;
 public:
-	Box(Point m_pBoxPoint);
+	Box(TetrisWindow* window,
+		Block* blcok,
+		Point m_pPoint,
+		uint16_t m_pWidth,
+		uint16_t m_pHeight,
+		TypeColor m_pColor);
 	virtual ~Box();
-	Mat GetBox();
-	Mat DisplayBox(Mat m_pPlayGround);
-	Mat HideBox(Mat m_pPlayGround);
-	Point GetBoxPoint();
+	void UpdateEntity(Point m_newPoint);
+	Mat DisplayEntity();
+	Mat HideEntity();
 
+	TetrisWindow* const GetWindow() { return m_iWindow; }
+	Block* const GetBlock() { return m_iMatBlock; }
 };
 #endif
