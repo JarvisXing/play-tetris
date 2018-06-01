@@ -56,61 +56,99 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 	m_iMatSolid = tmp_solid;
 	SetMatPlay(m_iMatSolid);
 	
-	//Point tmp_Point;
-	//tmp_Point = m_iBlock->LocToPoint();
-	//m_iBlock->UpdateEntity(tmp_Point);
-	//SetMatPlay(m_iBlock->DisplayEntity());
-
 	m_iBlock->UpdateArr();
 	m_iAbsLocArr=m_iBlock->GetBlockArray();
-	TypeDetect typedetect = DetectEdge();
-	char pointKey = waitKey(1000);
+	TypeDetect detectedge = DetectEdge();
+	TypeDetect detectblock=DetectCollision();
 
+	char pointKey = waitKey(500);
+	cout <<"key.........................."<< pointKey << endl;
+	cout << "block..." << detectblock << endl;
+	cout << "edge..."<< detectedge  << endl;
 	switch (pointKey)
 	{
 	case 'a':
-		if (typedetect != DETECT_LEFT)
+	{
+		if ((detectedge == DETECT_LEFT)||detectblock == DETECT_NOLEFT || detectblock == DETECT_NOSIDE)
 		{
+			break;
+		}
+		else
+		{			
 			m_iBlock->MoveBlock(MOVE_LEFT);
+			break;
 		}
-		break;
+	}
 	case 'd':
-		if (typedetect != DETECT_RIGHT)
+	{
+		if (detectedge == DETECT_RIGHT || detectblock == DETECT_NORIGHT || detectblock == DETECT_NOSIDE)
 		{
+			break;
+		}
+		else
+		{		
 			m_iBlock->MoveBlock(MOVE_RIGHT);
+			break;
 		}
-		break;
+	}
 	case 's':
-		if (typedetect != DETECT_BELOW)
+	{
+		if (detectedge == DETECT_BELOW ||  detectblock == DETECT_NOBELOW)
 		{
-			m_iBlock->MoveBlock(MOVE_DOWN);
+			break;
 		}
-		break;
-	case 'w':
+		else
+		{				
+			m_iBlock->MoveBlock(MOVE_DOWN);
+			break;
+		}
+	}
+
+	case 'w'://TODO:rotate problem
 		m_iBlock->RotateBlockCW();
 		break;
-	default:
-		break;
 	}
 
-	if (typedetect != DETECT_BELOW)
-	{	
-		typedetect=DetectCollision();
-		m_iBlock->MoveBlock(MOVE_DOWN);
-	}
-
-	//draw box
-	for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
+	if (detectedge == DETECT_BELOW || detectblock ==DETECT_NOBELOW)
 	{
-		//cout << "play " << (*it)[0] << "   " << (*it)[1] << endl;
+		//update m_iMatSolidArr
+		for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
+		{
 
-		m_iMatBoxArr[(*it)[1]][(*it)[0]] = true;
-		
-		Point tmp;
-		tmp = Point((20 + 5) * (*it)[0] + 5, (20 + 5) * (*it)[1] + 5);
-		Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
-		SetMatPlay(box->DisplayEntity());
+				m_iMatSolidArr[(*it)[1]][(*it)[0]] = true;
+
+		}
+
+		m_iMatBoxArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
+
+		cout << "New block" << endl;
+		Block* block = new Block(NULL, this, Point(0, 30), 105, 135, BLUE);
+		m_iBlock = block;
+		SetMatPlay(block->DisplayEntity());
+		detectedge = DETECT_NONE;
+	}	
+	else
+	{
+		m_iBlock->MoveBlock(MOVE_DOWN);
+		//draw box
+		for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
+		{
+			//cout << "play " << (*it)[0] << "   " << (*it)[1] << endl;
+			//if ((*it)[0] < 0 || (*it)[0] > 9|| (*it)[1] >19)
+			
+			
+			m_iMatBoxArr[(*it)[1]][(*it)[0]] = true;
+
+			Point tmp;
+			tmp = Point((20 + 5) * (*it)[0] + 5, (20 + 5) * (*it)[1] + 5);
+			Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
+			SetMatPlay(box->DisplayEntity());
+			
+			
+		}
+
 	}
+	
 	int tmp_row = 0;//row
 	for (auto it = m_iMatSolidArr.begin(); it != m_iMatSolidArr.end(); it++)
 	{
@@ -129,39 +167,7 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 		}
 		tmp_row++;
 	}
-	if (typedetect == DETECT_BELOW || typedetect==DETECT_BLOCK)
-	{
-		//update m_iMatSolidArr
-		for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
-		{
-			m_iMatSolidArr[(*it)[1]][(*it)[0]] = true;
-		}
-		m_iMatBoxArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
-
-		cout << "New block" << endl;
-		Block* block = new Block(NULL, this, Point(0, 30), 105, 135, BLUE);
-		m_iBlock = block;
-		SetMatPlay(block->DisplayEntity());
-		typedetect = DETECT_NONE;
-	}
-	tmp_row = 0;//row
-	for (auto it = m_iMatSolidArr.begin(); it != m_iMatSolidArr.end(); it++)
-	{
-		int tmp_col = 0;//column
-
-		for (auto ik = it->begin(); ik != it->end(); ik++)
-		{
-			if (*ik == true)
-			{
-				Point tmp;
-				tmp = Point((20 + 5) * tmp_col + 5, (20 + 5) * tmp_row + 5);
-				Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
-				SetMatPlay(box->DisplayEntity());
-			}
-			tmp_col++;
-		}
-		tmp_row++;
-	}
+	
 
 	
 }
@@ -193,80 +199,196 @@ Mat PlayGround::GetMatPlay()
 
 TypeDetect PlayGround::DetectEdge()
 {
+	array<bool, 3> tmp_detectarr = { false,false,false };
+
 	for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
 	{
-		cout << "edge "<<(*it)[0] << "   " << (*it)[1] << endl;
+		//cout << "edge "<<(*it)[0] << "   " << (*it)[1] << endl;
 
 		int tmpx = (*it)[0];
 		int tmpy = (*it)[1];
 
-		if (tmpy + 1 > 19)
+		if (tmpx - 1 < 0)
 		{
-			cout << "detect below" << endl;
-			return DETECT_BELOW;
+			tmp_detectarr[0] = true;
 		}
 		if (tmpx + 1 > 9)
 		{
-			cout << "detect right" << endl;
-			return DETECT_RIGHT;
+			tmp_detectarr[1] = true;
 		}
-		if (tmpx - 1 < 0)
+		if (tmpy + 1 > 19)
 		{
-			cout << "detect left" << endl;
-			return DETECT_LEFT;
+			tmp_detectarr[2] = true;
 		}
-
 	}
-	return DETECT_NONE;
+	if (tmp_detectarr.at(2) == true)
+	{
+		cout << "detect below edge" << endl;
+		return DETECT_BELOW;
+	}
+	else if (tmp_detectarr.at(0) == true)
+	{
+		cout << "detect left edge" << endl;
+		return DETECT_LEFT;
+	}
+	else if (tmp_detectarr.at(1) == true )
+	{
+		cout << "detect right edge" << endl;
+		return DETECT_RIGHT;
+	}
+	else
+	{
+		cout << "detect none edge" << endl;
+		return DETECT_NONE;
+	}
 }
 
 
 TypeDetect PlayGround::DetectCollision()
 {
-	list<array<int, 2>> tmp_detect;
+	array<bool, 3> tmp_detectarr = {false,false,false};
 
 	for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
 	{
 		int tmpx = (*it)[0];
 		int tmpy = (*it)[1];
-		cout << "colli " << tmpx <<"  "<< tmpy << endl;
-		if (m_iMatSolidArr[tmpy + 1][tmpx] == true)
+		cout << "colli " << tmpx << "  " << tmpy << endl;
+
+		//if ((*it)[0] < 0 || (*it)[0] > 9|| (*it)[1] >19)
+		if (tmpx == 0 && tmpy == 19)		//below ->
 		{
-			tmp_detect.push_back({ tmpx ,tmpy + 1 });
+			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
+			{
+				tmp_detectarr[1] = true;
+			}
+
 		}
-		//TODO: x<0,y<0
-		if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
+		else if (tmpx == 9 && tmpy == 19)//below <-
 		{
-			tmp_detect.push_back({ tmpx - 1,tmpy });
+			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
+			{
+				tmp_detectarr[0] = true;
+			}
+			
 		}
-		if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
+		else if(tmpx < 0 && tmpy < 19) //ср
 		{
-			tmp_detect.push_back({ tmpx + 1,tmpy });
+
+			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
+			{
+				tmp_detectarr[1] = true;
+			}
 		}
+		else if (tmpx == 0 && tmpy < 19)//сроб
+		{
+			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
+			{
+				tmp_detectarr[1] = true;
+			}
+			if (m_iMatSolidArr[tmpy + 1][tmpx] == true)
+			{
+				tmp_detectarr[2] = true;
+			}
+
+		}
+		else if (tmpx > 9 && tmpy < 19)			// zuo
+		{
+			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
+			{
+				tmp_detectarr[0] = true;
+			}
+			
+		}
+		else if (tmpx == 9 && tmpy < 19)//zuoxia
+		{
+			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
+			{
+				tmp_detectarr[0] = true;
+			}
+			if (m_iMatSolidArr[tmpy + 1][tmpx] == true)
+			{
+				tmp_detectarr[2] = true;
+			}
+
+		}
+		else if (tmpx < 0 && tmpy > 19)	//none
+		{ 
+		}
+		else if (tmpx > 9 && tmpy > 19)	//right corner none
+		{
+
+		}
+		else if (tmpx > 0 && tmpy == 19)
+		{
+			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
+			{
+				tmp_detectarr[0] = true;
+			}
+			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
+			{
+				tmp_detectarr[1] = true;
+			}
+		}
+		else if (tmpx < 9 && tmpy == 19)
+		{
+			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
+			{
+				tmp_detectarr[0] = true;
+			}
+			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
+			{
+				tmp_detectarr[1] = true;
+			}
+		}
+
+		else		//mid
+		{
+			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
+			{
+				tmp_detectarr[0] = true;
+			}
+			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
+			{
+				tmp_detectarr[1] = true;
+			}
+			if (m_iMatSolidArr[tmpy + 1][tmpx] == true)
+			{
+				tmp_detectarr[2] = true;
+			}
+
+		}
+		
+		
+			
 		//if (m_iMatSolidArr[tmpy - 1][tmpx] == true)
 		//{
 		//	tmp_detect.push_back({ tmpx,tmpy - 1 });
 		//}
 	}
-	set<array<int, 2>> s_detect(tmp_detect.begin(), tmp_detect.end());
-	set<array<int, 2>>::iterator iter;
 
-	for (auto ik = m_iAbsLocArr.begin(); ik != m_iAbsLocArr.end(); ik++)
+	if (tmp_detectarr.at(2)==true)
 	{
-		int tmpx = (*ik)[0];
-		int tmpy = (*ik)[1];
-		iter = s_detect.find({ tmpx,tmpy });
-		if (iter != s_detect.end()) {
-			s_detect.erase(iter);
-			cout << " find the student!" << endl;
-			return DETECT_BLOCK;
-
-		}
-		else {
-			cout << "Cannot find the student!" << endl;
-			return DETECT_NONE;
-
-		}
+		cout << "detect below block" << endl;
+		return DETECT_NOBELOW;
 	}
-	//cout << s_detect.size() << endl;
+	else if (tmp_detectarr.at(0) == true && tmp_detectarr.at(1) == false)
+	{
+		cout << "detect left block" << endl;
+		return DETECT_NOLEFT;
+	}
+	else if (tmp_detectarr.at(0) == false && tmp_detectarr.at(1) == true)
+	{
+		cout << "detect right block" << endl;
+		return DETECT_NORIGHT;
+	}
+	else if (tmp_detectarr.at(0) == true && tmp_detectarr.at(1) == true)
+	{
+		cout << "detect side block" << endl;
+		return DETECT_NOSIDE;
+	}
+	else
+	{
+		cout << "detect none block" << endl;
+		return DETECT_NONE;
+	}
 }

@@ -12,8 +12,8 @@ class Box;
 class PlayGround;
 struct Location
 {
-	uint8_t x;
-	uint8_t y;
+	int x;
+	int y;
 };
  
 class Block:public BaseEntity

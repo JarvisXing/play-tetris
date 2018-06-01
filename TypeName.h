@@ -39,7 +39,13 @@ enum TypeDetect
 	DETECT_LEFT,
 	DETECT_RIGHT,
 	DETECT_BELOW,
+
 	DETECT_BLOCK,
+
+	DETECT_NOBELOW,
+	DETECT_NOLEFT,
+	DETECT_NORIGHT,
+	DETECT_NOSIDE,
 	
 };
 inline int GetIDOfBlock(string name)

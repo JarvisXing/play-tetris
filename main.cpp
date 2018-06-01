@@ -25,7 +25,7 @@ int main()
 	Window->ShowWindow();
 	cout << "after init" << endl;
 	int i = 0;
-	while (i < 100)
+	while (i < 200)
 	{	
 		cout << "cnt i " << i << endl;
 		//Box demo
