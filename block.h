@@ -31,8 +31,8 @@ private:
 
 	Location m_iLocation;
 
-	int m_iTypeName;
-	int m_iDirection;
+	TypeName m_iTypeName;
+	TypeDir m_iDirection;
 	int m_iBoxPos;//middle varient
 	list<Point> m_iBoxPointList;
 	array<array<int,2>, 4> m_iMatBoxArr;//表示box的形状及方向{1,2}{2,1}
@@ -45,7 +45,10 @@ public:
 		Point m_pPoint,
 		uint16_t m_pWidth,
 		uint16_t m_pHeight,
-		TypeColor m_pColor);
+		TypeColor m_pColor,
+		TypeName m_pTypeName,
+		TypeDir m_pDirection
+	);
 	virtual ~Block();
 
 	void InitBlock();	
@@ -68,7 +71,8 @@ public:
 	Point LocToPoint();
 
 	list<Point> GetPointList();
-
+	TypeName GetTypeName();
+	TypeDir GetDir();
 
 	TetrisWindow* const GetWindow() { return m_iWindow; }
 	PlayGround* const GetPlay() { return m_iPlay; }

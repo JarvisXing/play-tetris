@@ -1,6 +1,6 @@
 #include "TetrisWindow.h"
 
-TetrisWindow::TetrisWindow() :m_iWindowName("Tetris"),
+TetrisWindow::TetrisWindow() :m_iWindowName("Tetris by Jarvis"),
 m_iColor(BLACK),m_iBoxPix(20),m_iGapPix(5),
 m_iNumBoxX(17),m_iNumBoxY(22),
 m_iNumBlockW(4), m_iNumBlockH(4),
@@ -29,7 +29,9 @@ void TetrisWindow::InitWindow()
 {
 	/*Box* box = new Box(this, NULL,NULL,Point(300,120), m_iBoxPix, m_iBoxPix, GREY);
 	m_iBox = box;*/
-	Block* block = new Block(this,NULL, Point(290, 20), m_iBlockW, m_iBlockH, WHITE);
+	TypeName tmpname = TypeName(rand() % 7);
+	TypeDir tmpdir = TypeDir(rand() % 4);
+	Block* block = new Block(this,NULL, Point(290, 20), m_iBlockW, m_iBlockH, WHITE, tmpname, tmpdir);
 	m_iBlock = block;
 	PlayGround* play = new PlayGround(this, Point(20, 20), m_iPlayW, m_iPlayH, GREY);
 	m_iPlay = play;
@@ -41,12 +43,18 @@ void TetrisWindow::ExitWindow()
 void TetrisWindow::ShowWindow()
 {
 	imshow(GetWindowName(),GetMatWindow());
-	//move action
 	Mat tmp_Window(m_iHeight, m_iWidth, CV_8UC3, SetColor(m_iColor));
 	m_iMatWindow = tmp_Window;
 }
 void TetrisWindow::UpdateWindow()
 {
+	if (this->GetPlayGround()->GetBlockState())
+	{
+		TypeName tmpname = TypeName(rand() % 7);
+		TypeDir tmpdir = TypeDir(rand() % 4);
+		Block* block = new Block(this, NULL, Point(290, 20), m_iBlockW, m_iBlockH, WHITE, tmpname, tmpdir);
+		m_iBlock = block;
+	}
 	//SetMatWindow(m_iBox->DisplayEntity());
 	SetMatWindow(m_iBlock->DisplayEntity());
 	SetMatWindow(m_iPlay->DisplayEntity());

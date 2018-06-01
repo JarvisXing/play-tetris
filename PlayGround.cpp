@@ -19,34 +19,13 @@ void PlayGround::InitPlay()
 {
 	m_iMatBoxArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
 	m_iMatSolidArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
+	TypeName tmpname = TypeName(rand() % 7);
+	TypeDir tmpdir = TypeDir(rand() % 4);
+	Block* block = new Block(NULL, this, Point(0, 0), 105, 105, GREY,tmpname, tmpdir);
 
-	//int tmp_row = 0;//row
-	//for (auto it = m_iMatBoxArr.begin();it!= m_iMatBoxArr.end();it++)
-	//{		
-	//	int tmp_col = 0;//column
-
-	//	for (auto ik = it->begin(); ik != it->end(); ik++)
-	//	{	
-	//		if (*ik == true)
-	//		{		
-	//			//cout << "-tmp_row-" << tmp_row << "-tmp_col-" << tmp_col << endl;
-	//			m_iBoxPointSet.insert({ tmp_row, tmp_col});
-	//			Point tmp;
-	//			tmp = Point((20 + 5) * tmp_col+ 5, (20 + 5) * tmp_row + 5);
-	//			Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
-
-	//			m_iBoxSet.insert(box);
-	//			SetMatPlay(box->DisplayEntity());
-	//		}
-	//		tmp_col++;
-	//	}
-	//	tmp_row++;
-	//}
-
-
-	Block* block = new Block(NULL, this, Point(0, 30), 105, 135, GREY);
 	m_iBlock= block;
 	SetMatPlay(block->DisplayEntity());
+	m_iNewBlock = false;
 
 }
 void PlayGround::UpdateEntity(Point m_newPoint)
@@ -57,7 +36,7 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 	SetMatPlay(m_iMatSolid);
 	
 	m_iBlock->UpdateArr();
-	m_iAbsLocArr=m_iBlock->GetBlockArray();
+	m_iAbsLocArr = m_iBlock->GetBlockArray();
 	TypeDetect detectedge = DetectEdge();
 	TypeDetect detectblock=DetectCollision();
 
@@ -120,13 +99,18 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 		m_iMatBoxArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
 
 		cout << "New block" << endl;
-		Block* block = new Block(NULL, this, Point(0, 30), 105, 135, GREY);
+		Block* block = new Block(NULL, this, Point(0, 30), 105, 105, GREY, 
+			this->GetWindow()->GetBlock()->GetTypeName(), this->GetWindow()->GetBlock()->GetDir());
 		m_iBlock = block;
 		SetMatPlay(block->DisplayEntity());
+		m_iNewBlock = true;
 		detectedge = DETECT_NONE;
+
 	}	
 	else
 	{
+		m_iNewBlock = false;
+
 		m_iBlock->MoveBlock(MOVE_DOWN);
 		//draw box
 		for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
@@ -139,14 +123,13 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 			tmp = Point((20 + 5) * (*it)[0] + 5, (20 + 5) * (*it)[1] + 5);
 			Box* box = new Box(NULL, NULL, this, tmp, 20, 20, WHITE);
 			SetMatPlay(box->DisplayEntity());
-			
-			
+					
 		}
 
 	}
 	
 	DrawSolid();
-	
+	//
 	ClearRow();
 	DrawSolid();
 
@@ -226,7 +209,7 @@ TypeDetect PlayGround::DetectEdge()
 
 TypeDetect PlayGround::DetectCollision()
 {
-	array<bool, 3> tmp_detectarr = {false,false,false};
+	array<bool, 3> tmp_detectarr = {false,false,false};//left right below
 
 	for (auto it = m_iAbsLocArr.begin(); it != m_iAbsLocArr.end(); it++)
 	{
@@ -251,14 +234,6 @@ TypeDetect PlayGround::DetectCollision()
 			}
 			
 		}
-		else if(tmpx < 0 && tmpy < 19) //ср
-		{
-
-			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
-			{
-				tmp_detectarr[1] = true;
-			}
-		}
 		else if (tmpx == 0 && tmpy < 19)//сроб
 		{
 			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
@@ -271,14 +246,6 @@ TypeDetect PlayGround::DetectCollision()
 			}
 
 		}
-		else if (tmpx > 9 && tmpy < 19)			// zuo
-		{
-			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
-			{
-				tmp_detectarr[0] = true;
-			}
-			
-		}
 		else if (tmpx == 9 && tmpy < 19)//zuoxia
 		{
 			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
@@ -289,13 +256,6 @@ TypeDetect PlayGround::DetectCollision()
 			{
 				tmp_detectarr[2] = true;
 			}
-
-		}
-		else if (tmpx < 0 && tmpy > 19)	//none
-		{ 
-		}
-		else if (tmpx > 9 && tmpy > 19)	//right corner none
-		{
 
 		}
 		else if (tmpx > 0 && tmpy == 19)
@@ -320,9 +280,32 @@ TypeDetect PlayGround::DetectCollision()
 				tmp_detectarr[1] = true;
 			}
 		}
+		else if(tmpx < 0 && tmpy < 19) //ср
+		{
 
+			if (m_iMatSolidArr[tmpy][tmpx + 1] == true)
+			{
+				tmp_detectarr[1] = true;
+			}
+		}
+		else if (tmpx > 9 && tmpy < 19)			// zuo
+		{
+			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
+			{
+				tmp_detectarr[0] = true;
+			}
+			
+		}
+		else if (tmpx < 0 && tmpy > 19)	//left corner none
+		{ 
+		}
+		else if (tmpx > 9 && tmpy > 19)	//right corner none
+		{
+
+		}
 		else		//mid
 		{
+			
 			if (m_iMatSolidArr[tmpy][tmpx - 1] == true)
 			{
 				tmp_detectarr[0] = true;
@@ -337,13 +320,8 @@ TypeDetect PlayGround::DetectCollision()
 			}
 
 		}
-		
-		
-			
-		//if (m_iMatSolidArr[tmpy - 1][tmpx] == true)
-		//{
-		//	tmp_detect.push_back({ tmpx,tmpy - 1 });
-		//}
+		cout << "array " << tmp_detectarr[0] << "---" << tmp_detectarr[1] << "---" << tmp_detectarr[2] << endl;
+
 	}
 
 	if (tmp_detectarr.at(2)==true)
@@ -401,7 +379,6 @@ void PlayGround::ClearRow()
 	int tmp_num = 0;
 	set<int> full_set;
 	set<int>::iterator iter;
-	array<array<bool, 10>, 20> tmp_solid;
 
 	for (auto it = m_iMatSolidArr.begin(); it != m_iMatSolidArr.end(); it++)
 	{	
@@ -449,4 +426,8 @@ void PlayGround::ClearRow()
 	
 	
 
+}
+bool PlayGround::GetBlockState()
+{
+	return m_iNewBlock;
 }

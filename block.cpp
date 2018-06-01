@@ -1,8 +1,9 @@
 #include"Block.h"
 Block::Block(TetrisWindow* window, PlayGround* play,
-	Point m_pPoint, uint16_t m_pWidth, uint16_t m_pHeight, TypeColor m_pColor):
-	BaseEntity(m_pPoint, m_pWidth, m_pHeight, m_pColor),
-	m_iWindow(window), m_iPlay(play)
+	Point m_pPoint, uint16_t m_pWidth, uint16_t m_pHeight, 
+	TypeColor m_pColor, TypeName m_pTypeName,TypeDir m_pDirection
+	): BaseEntity(m_pPoint, m_pWidth, m_pHeight, m_pColor),
+	m_iWindow(window), m_iPlay(play),m_iTypeName(m_pTypeName),m_iDirection(m_pDirection)
 {		
 	Mat tmp_block(GetHeight(), GetWidth(), CV_8UC3, SetColor(m_pColor));
 	m_iMatBlock = tmp_block;
@@ -12,7 +13,8 @@ Block::Block(TetrisWindow* window, PlayGround* play,
 		m_iField = IN_PLAYGROUND;
 	else
 		m_iField = IN_NONE;
-
+	m_iLocation.x = 4;
+	m_iLocation.y = 0;
 	InitBlock();
 
 }
@@ -25,22 +27,24 @@ Block::~Block()
 
 void Block::InitBlock()
 {
-	m_iTypeName = rand() % 7;
-	m_iDirection = rand() % 4;	
+	//m_iTypeName = rand() % 7;
+	//m_iDirection = rand() % 4;
 	//TODO:modify Compute array & Compute point
 	m_iBoxPos = ComputePos();
 	UpdateBlockArray();
 	m_iBoxPointList = GetPointList();//TODO: maybe change to array
-	
-	/*for (auto ik = m_iBoxPointList.begin(); ik != m_iBoxPointList.end(); ik++)
+	if (m_iField == IN_WINDOW)
 	{
-		Point tmp;
-		tmp = Point(ik->x, ik->y);
-		Box* box = new Box(NULL,this,NULL, tmp, 20, 20, GREEN);
+		for (auto ik = m_iBoxPointList.begin(); ik != m_iBoxPointList.end(); ik++)
+		{
+			Point tmp;
+			tmp = Point(ik->x, ik->y);
+			Box* box = new Box(NULL, this, NULL, tmp, 20, 20, GREEN);
 
-		m_iMatBoxList.push_back(box);
-		SetMatBlock(box->DisplayEntity());
-	}*/
+			m_iMatBoxList.push_back(box);
+			SetMatBlock(box->DisplayEntity());
+		}
+	}
 
 }
 void Block::UpdateEntity(Point m_newPoint)
@@ -631,3 +635,11 @@ void Block::MoveBlock(TypeMoveDir m_pMoveDir)
 	//return LocToPoint(m_iLocation.x, m_iLocation.y);
 }
 
+TypeName Block::GetTypeName()
+{
+	return m_iTypeName;
+}
+TypeDir Block::GetDir()
+{
+	return m_iDirection;
+}
