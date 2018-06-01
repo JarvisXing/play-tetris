@@ -31,7 +31,7 @@ void TetrisWindow::InitWindow()
 	m_iBox = box;*/
 	Block* block = new Block(this,NULL, Point(290, 20), m_iBlockW, m_iBlockH, WHITE);
 	m_iBlock = block;
-	PlayGround* play = new PlayGround(this, Point(20, 20), m_iPlayW, m_iPlayH, BLUE);
+	PlayGround* play = new PlayGround(this, Point(20, 20), m_iPlayW, m_iPlayH, GREY);
 	m_iPlay = play;
 }
 void TetrisWindow::ExitWindow()

@@ -45,6 +45,8 @@ public:
 	void SetMatPlay(Mat m_pNewMat);
 	TypeDetect DetectEdge();
 	TypeDetect DetectCollision();
+	void DrawSolid();
+	void ClearRow();
 
 	TetrisWindow* const GetWindow() { return m_iWindow; }
 	Block* const GetBlock() { return m_iBlock; }

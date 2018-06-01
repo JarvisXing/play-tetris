@@ -44,7 +44,7 @@ void PlayGround::InitPlay()
 	//}
 
 
-	Block* block = new Block(NULL, this, Point(0, 30), 105, 135, BLUE);
+	Block* block = new Block(NULL, this, Point(0, 30), 105, 135, GREY);
 	m_iBlock= block;
 	SetMatPlay(block->DisplayEntity());
 
@@ -63,8 +63,6 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 
 	char pointKey = waitKey(500);
 	cout <<"key.........................."<< pointKey << endl;
-	cout << "block..." << detectblock << endl;
-	cout << "edge..."<< detectedge  << endl;
 	switch (pointKey)
 	{
 	case 'a':
@@ -122,7 +120,7 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 		m_iMatBoxArr.fill({ false ,false,false,false ,false,false, false ,false,false, false });
 
 		cout << "New block" << endl;
-		Block* block = new Block(NULL, this, Point(0, 30), 105, 135, BLUE);
+		Block* block = new Block(NULL, this, Point(0, 30), 105, 135, GREY);
 		m_iBlock = block;
 		SetMatPlay(block->DisplayEntity());
 		detectedge = DETECT_NONE;
@@ -135,13 +133,11 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 		{
 			//cout << "play " << (*it)[0] << "   " << (*it)[1] << endl;
 			//if ((*it)[0] < 0 || (*it)[0] > 9|| (*it)[1] >19)
-			
-			
 			m_iMatBoxArr[(*it)[1]][(*it)[0]] = true;
 
 			Point tmp;
 			tmp = Point((20 + 5) * (*it)[0] + 5, (20 + 5) * (*it)[1] + 5);
-			Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
+			Box* box = new Box(NULL, NULL, this, tmp, 20, 20, WHITE);
 			SetMatPlay(box->DisplayEntity());
 			
 			
@@ -149,27 +145,11 @@ void PlayGround::UpdateEntity(Point m_newPoint)
 
 	}
 	
-	int tmp_row = 0;//row
-	for (auto it = m_iMatSolidArr.begin(); it != m_iMatSolidArr.end(); it++)
-	{
-		int tmp_col = 0;//column
-
-		for (auto ik = it->begin(); ik != it->end(); ik++)
-		{
-			if (*ik == true)
-			{
-				Point tmp;
-				tmp = Point((20 + 5) * tmp_col + 5, (20 + 5) * tmp_row + 5);
-				Box* box = new Box(NULL, NULL, this, tmp, 20, 20, RED);
-				SetMatPlay(box->DisplayEntity());
-			}
-			tmp_col++;
-		}
-		tmp_row++;
-	}
+	DrawSolid();
 	
+	ClearRow();
+	DrawSolid();
 
-	
 }
 
 
@@ -391,4 +371,82 @@ TypeDetect PlayGround::DetectCollision()
 		cout << "detect none block" << endl;
 		return DETECT_NONE;
 	}
+}
+
+void PlayGround::DrawSolid()
+{
+	int tmp_row = 0;//row
+	for (auto it = m_iMatSolidArr.begin(); it != m_iMatSolidArr.end(); it++)
+	{
+		int tmp_col = 0;//column
+
+		for (auto ik = it->begin(); ik != it->end(); ik++)
+		{
+			if (*ik == true)
+			{
+				Point tmp;
+				tmp = Point((20 + 5) * tmp_col + 5, (20 + 5) * tmp_row + 5);
+				Box* box = new Box(NULL, NULL, this, tmp, 20, 20, WHITE);
+				SetMatPlay(box->DisplayEntity());
+			}
+			tmp_col++;
+		}
+		tmp_row++;
+	}
+}
+
+void PlayGround::ClearRow()
+{
+	int tmp_row = 0;
+	int tmp_num = 0;
+	set<int> full_set;
+	set<int>::iterator iter;
+	array<array<bool, 10>, 20> tmp_solid;
+
+	for (auto it = m_iMatSolidArr.begin(); it != m_iMatSolidArr.end(); it++)
+	{	
+		int tmp_sum = 0;
+		for (auto ik = it->begin(); ik != it->end(); ik++)
+		{
+			tmp_sum = tmp_sum + (*ik);
+		}	
+		if (tmp_sum == 10)
+		{	
+			cout<<"Sum ......"<< tmp_row <<endl;
+			full_set.insert(tmp_row);
+		}
+		tmp_row++;	
+	}
+	tmp_num = 0;
+	
+	if (full_set.size() > 0)
+	{
+		for (auto it = full_set.rbegin(); it != full_set.rend(); it++)
+		{
+			cout << "*it ------" << (*it) << endl;
+			
+			for (int i = (*it); i > 0; i--)
+			{
+				cout << "i------" << i << endl;
+				if (i == 0)
+				{
+					m_iMatSolidArr[i].fill(false);
+				}
+				else
+				{
+					m_iMatSolidArr[i] = m_iMatSolidArr[i-1];
+				}
+			}
+			
+		}
+		m_iMatSolidArr;
+
+	}
+	else
+	{
+
+	}
+	
+	
+
 }
